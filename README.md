@@ -9,7 +9,7 @@ A full-stack web application for discovering hackathons and tech certifications 
 | IBIZZI-Khalid | Developer | [@IBIZZI-Khalid](https://github.com/IBIZZI-Khalid) |
 | Hanae OUKACHA | Developer | [@HanaeOukacha1](https://github.com/HanaeOukacha1) |
 
-**Repository**: [github.com/IBIZZI-Khalid/hackerhub-monorepo](https://github.com/IBIZZI-Khalid/hackerhub-monorepo)
+**Repository**: [github.com/IBIZZI-Khalid/hackerhub](https://github.com/IBIZZI-Khalid/hackerhub)
 
 ---
 
