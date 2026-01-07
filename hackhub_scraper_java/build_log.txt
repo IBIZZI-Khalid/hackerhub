@@ -1,0 +1,43 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------< com.khalid.scraper:hackhub_scraper_java >---------------
+[INFO] Building hackhub_scraper_java 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.4.0:clean (default-clean) @ hackhub_scraper_java ---
+[INFO] Deleting C:\Users\hp\Desktop\hackerhub\hackhub_scraper_java\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ hackhub_scraper_java ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ hackhub_scraper_java ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 21 source files with javac [debug parameters release 23] to target\classes
+[INFO] Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/hp/Desktop/hackerhub/hackhub_scraper_java/src/main/java/com/hackhub/service/impl/ScraperServiceImpl.java:[235,35] incompatible types: java.lang.String cannot be converted to com.hackhub.model.EventType
+[ERROR] /C:/Users/hp/Desktop/hackerhub/hackhub_scraper_java/src/main/java/com/hackhub/service/impl/ScraperServiceImpl.java:[386,27] incompatible types: java.lang.String cannot be converted to com.hackhub.model.EventType
+[ERROR] /C:/Users/hp/Desktop/hackerhub/hackhub_scraper_java/src/main/java/com/hackhub/service/impl/ScraperServiceImpl.java:[493,35] incompatible types: java.lang.String cannot be converted to com.hackhub.model.EventType
+[INFO] 3 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  9.806 s
+[INFO] Finished at: 2025-12-29T03:19:49+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.1:compile (default-compile) on project hackhub_scraper_java: Compilation failure: Compilation failure: 
+[ERROR] /C:/Users/hp/Desktop/hackerhub/hackhub_scraper_java/src/main/java/com/hackhub/service/impl/ScraperServiceImpl.java:[235,35] incompatible types: java.lang.String cannot be converted to com.hackhub.model.EventType
+[ERROR] /C:/Users/hp/Desktop/hackerhub/hackhub_scraper_java/src/main/java/com/hackhub/service/impl/ScraperServiceImpl.java:[386,27] incompatible types: java.lang.String cannot be converted to com.hackhub.model.EventType
+[ERROR] /C:/Users/hp/Desktop/hackerhub/hackhub_scraper_java/src/main/java/com/hackhub/service/impl/ScraperServiceImpl.java:[493,35] incompatible types: java.lang.String cannot be converted to com.hackhub.model.EventType
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

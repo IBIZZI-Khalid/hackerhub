@@ -18,7 +18,10 @@ const providerStyles: { [key: string]: string } = {
   'MLH': 'bg-mlh text-white border-mlh',
   'DEVPOST': 'bg-devpost text-white border-devpost',
   'Coursera': 'bg-blue-600 text-white border-blue-600',
-  'Udemy': 'bg-purple-600 text-white border-purple-600'
+  'Udemy': 'bg-purple-600 text-white border-purple-600',
+  'Oracle': 'bg-red-600 text-white border-red-600',
+  'IBM': 'bg-blue-600 text-white border-blue-600',
+  'Microsoft': 'bg-sky-500 text-white border-sky-500'
 }
 
 export function EventCard({ event }: EventCardProps) {
@@ -30,6 +33,11 @@ export function EventCard({ event }: EventCardProps) {
   return (
     <Card className="h-full flex flex-col group overflow-hidden bg-card/80 backdrop-blur-sm border-white/10 transition-all duration-300 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1">
       <div className="relative overflow-hidden">
+        <div className="absolute top-4 left-4 z-10">
+          <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold">
+            {event.type === 'HACKATHON' ? '🏆 Hackathon' : event.type === 'COURSE' ? '📚 Course' : '🎓 Certificate'}
+          </Badge>
+        </div>
         <Badge
           className={cn('absolute top-4 right-4 z-10 font-bold border-2', providerClass)}
         >
@@ -56,7 +64,7 @@ export function EventCard({ event }: EventCardProps) {
           <>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              <span>{event.date || 'Date TBD'}</span>
+              <span>{event.eventDate ? new Date(event.eventDate).toLocaleDateString() : 'Date TBD'}</span>
             </div>
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4" />
@@ -64,10 +72,19 @@ export function EventCard({ event }: EventCardProps) {
             </div>
           </>
         ) : (
-          <div className="flex items-center gap-2">
-            <Award className="w-4 h-4" />
-            <span>Certificate</span>
-          </div>
+          <>
+            <div className="flex items-center gap-2">
+              <Award className="w-4 h-4" />
+              <span>{event.type === 'COURSE' ? 'Course' : 'Certification'}</span>
+            </div>
+            {event.level && (
+              <div className="flex items-center gap-2">
+                {/* Reusing MapPin or similar if BarChart not imported, but let's just use text for now or generic icon if unsure */}
+                <Award className="w-4 h-4" />
+                <span>Level: {event.level}</span>
+              </div>
+            )}
+          </>
         )}
         <p className="line-clamp-3">{event.blurb}</p>
       </CardContent>

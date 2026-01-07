@@ -20,62 +20,63 @@ import { useState } from 'react';
 import { type SearchFormValues } from '@/lib/types';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
 const formSchema = z.object({
   domain: z.string().optional(),
   prize: z.string().optional(),
   location: z.string().optional(),
   count: z.number().min(5).max(50),
-  scrapeType: z.enum(['hackathons', 'certificates']),
+  scrapeType: z.enum(['hackathons', 'certificates', 'courses']),
+  provider: z.string().optional().default('all'),
 });
 
-interface SearchFormProps {
-  onScrape: (data: SearchFormValues) => void;
-  isLoading: boolean;
-}
-
-export function SearchForm({ onScrape, isLoading }: SearchFormProps) {
+export default function SearchForm({ onSubmit, isLoading }: { onSubmit: (values: SearchFormValues) => void; isLoading: boolean }) {
   const [sliderValue, setSliderValue] = useState(10);
   const [maxPrize, setMaxPrize] = useState(5000);
 
-  const form = useForm<SearchFormValues>({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       domain: '',
-      prize: `${maxPrize}`,
+      prize: '5000',
       location: '',
       count: 10,
       scrapeType: 'hackathons',
+      provider: 'all',
     },
   });
-
-  const onSubmit = (values: SearchFormValues) => {
-    onScrape(values);
-  };
 
   const scrapeType = form.watch('scrapeType');
 
   return (
-    <Card className="max-w-4xl mx-auto bg-card/50 backdrop-blur-sm border-white/10">
-      <CardContent className="p-6 md:p-8">
+    <Card className="w-full max-w-4xl mx-auto shadow-2xl">
+      <CardContent className="p-8">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
               name="scrapeType"
               render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel>What are you looking for?</FormLabel>
+                <FormItem>
+                  <FormLabel className="text-lg font-semibold">What are you looking for?</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className="flex flex-col md:flex-row gap-4"
+                      className="flex flex-col space-y-3"
                     >
                       <FormItem className="flex items-center space-x-3 space-y-0">
                         <FormControl>
                           <RadioGroupItem value="hackathons" />
                         </FormControl>
-                        <FormLabel className="font-normal">
+                        <FormLabel className="font-normal cursor-pointer">
                           Hackathons
                         </FormLabel>
                       </FormItem>
@@ -83,8 +84,16 @@ export function SearchForm({ onScrape, isLoading }: SearchFormProps) {
                         <FormControl>
                           <RadioGroupItem value="certificates" />
                         </FormControl>
-                        <FormLabel className="font-normal">
+                        <FormLabel className="font-normal cursor-pointer">
                           Certificates
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="courses" />
+                        </FormControl>
+                        <FormLabel className="font-normal cursor-pointer">
+                          Courses
                         </FormLabel>
                       </FormItem>
                     </RadioGroup>
@@ -97,12 +106,48 @@ export function SearchForm({ onScrape, isLoading }: SearchFormProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-x-6 gap-y-8">
               <FormField
                 control={form.control}
+                name="provider"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Platform / Provider</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a provider" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="all">All Providers</SelectItem>
+                        {scrapeType === 'hackathons' ? (
+                          <>
+                            <SelectItem value="mlh">MLH</SelectItem>
+                            <SelectItem value="devpost">Devpost</SelectItem>
+                            <SelectItem value="oracle">Oracle</SelectItem>
+                            <SelectItem value="ibm">IBM</SelectItem>
+                            <SelectItem value="microsoft">Microsoft</SelectItem>
+                          </>
+                        ) : (
+                          <>
+                            <SelectItem value="oracle">Oracle</SelectItem>
+                            <SelectItem value="ibm">IBM</SelectItem>
+                            <SelectItem value="microsoft">Microsoft</SelectItem>
+                          </>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="domain"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Domain / Technology</FormLabel>
                     <FormControl>
-                      <Input placeholder={scrapeType === 'hackathons' ? "e.g., AI, Web3, Python" : "e.g., Google, AWS"} {...field} />
+                      <Input placeholder={scrapeType === 'hackathons' ? "e.g., AI, Web3, Python" : "e.g., Cloud, Data Science"} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -176,6 +221,7 @@ export function SearchForm({ onScrape, isLoading }: SearchFormProps) {
                 )}
               />
             </div>
+
             <Button type="submit" className="w-full text-lg" size="lg" disabled={isLoading}>
               {isLoading ? (
                 <>

@@ -25,6 +25,7 @@ services:
 
   # Spring Boot Backend
   backend:
+    shm_size: '2gb'
     build:
       context: ./hackhub_scraper_java
       dockerfile: Dockerfile
@@ -42,8 +43,6 @@ services:
         condition: service_healthy
     networks:
       - hackerhub-network
-    volumes:
-      - D:/.m2/repository:/maven-repo
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health", "||", "exit", "1"]
       interval: 30s
@@ -55,6 +54,7 @@ services:
   frontend:
     build:
       context: ./hackerhub_FE
+      network: host
       dockerfile: Dockerfile
     container_name: hackerhub-frontend
     restart: unless-stopped

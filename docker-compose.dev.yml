@@ -27,7 +27,7 @@ services:
   backend:
     build:
       context: ./hackhub_scraper_java
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: hackerhub-backend-dev
     restart: unless-stopped
     ports:
@@ -38,7 +38,9 @@ services:
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-hackerhub}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-hackerhub123}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    volumes:
+      - ./hackhub_scraper_java:/app
+      - maven_dev_data:/root/.m2
     depends_on:
       mysql:
         condition: service_healthy
@@ -68,6 +70,8 @@ services:
 
 volumes:
   mysql_dev_data:
+    driver: local
+  maven_dev_data:
     driver: local
 
 networks:

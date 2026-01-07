@@ -44,22 +44,39 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
   const [event, setEvent] = useState<Event | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load event from localStorage
+  // Load event from API first, fallback to localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('hackhub-events');
-    if (saved) {
+    const fetchEvent = async () => {
+      const eventId = parseInt(params.id, 10);
+
+      // Try to fetch from API first
       try {
-        const events: Event[] = JSON.parse(saved);
-        // params.id might be a promise in newer Next.js versions, but here it's passed as prop
-        // We'll trust the prop for now but handle the parsing safely
-        const eventId = parseInt(params.id, 10);
-        const found = events.find(e => e.id === eventId);
-        setEvent(found || null);
-      } catch (e) {
-        console.error('Failed to load event:', e);
+        const response = await fetch(`http://localhost:8080/api/events/${eventId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setEvent(data);
+          setIsLoading(false);
+          return;
+        }
+      } catch (error) {
+        console.log('API fetch failed, trying localStorage:', error);
       }
-    }
-    setIsLoading(false);
+
+      // Fallback to localStorage
+      const saved = localStorage.getItem('hackhub-events');
+      if (saved) {
+        try {
+          const events: Event[] = JSON.parse(saved);
+          const found = events.find(e => e.id === eventId);
+          setEvent(found || null);
+        } catch (e) {
+          console.error('Failed to load event from localStorage:', e);
+        }
+      }
+      setIsLoading(false);
+    };
+
+    fetchEvent();
   }, [params.id]);
 
   const cleanDescription = useMemo(() => {

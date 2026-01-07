@@ -1,18 +1,19 @@
 package com.hackhub.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity
+@Table(name = "events", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "title", "provider" })
+})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Event {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,26 +23,38 @@ public class Event {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private String blurb;
+    @Enumerated(EnumType.STRING)
+    private EventType type;
 
-    private String url;
-
+    private Double price;
+    private LocalDate eventDate;
     private String location;
+    private String sourceUrl;
+    private String provider;
 
-    private String date; // Keep as string for flexibility in scraping, can parse later
+    // Certificate-specific fields
+    private String category; // Technology area (e.g., "Oracle Cloud Infrastructure", "Database")
+    private String examCode; // Exam code (e.g., "1Z0-1085-25")
+    private String level; // Certification level (e.g., "Associate", "Professional", "Foundations")
 
+    // Scraper-specific fields (from original Event entity)
+    private LocalDateTime scrappedAt;
+    private String blurb;
     private String imageUrl;
 
-    private String provider; // e.g., "DEVPOST", "MLH"
+    @Column(columnDefinition = "TEXT")
     private String requirements;
-    private String judges;
-    private String judgingCriteria;
-    private String type;
 
-    private LocalDateTime scrappedAt;
+    @Column(columnDefinition = "TEXT")
+    private String judges;
+
+    private String judgingCriteria;
+    private LocalDate parsedDate;
 
     @PrePersist
     protected void onCreate() {
-        scrappedAt = LocalDateTime.now();
+        if (scrappedAt == null) {
+            scrappedAt = LocalDateTime.now();
+        }
     }
 }

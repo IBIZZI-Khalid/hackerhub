@@ -20,20 +20,7 @@ import java.util.Collections;
 @Configuration
 public class WebConfig {
 
-    @Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-
-        // Allow ALL origins via pattern to support credentials if needed
-        config.setAllowedOriginPatterns(Collections.singletonList("*"));
-        config.addAllowedMethod("*");
-        config.addAllowedHeader("*");
-        config.setAllowCredentials(true);
-
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
-    }
+    // CorsFilter is now handled in SecurityConfig to ensure correct filter order
 
     @Bean
     public FilterRegistrationBean<Filter> loggingFilter() {

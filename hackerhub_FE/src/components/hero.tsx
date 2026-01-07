@@ -7,8 +7,8 @@ export function Hero() {
   const stats = [
     {
       icon: <Bot className="h-6 w-6 text-accent" />,
-      title: '2 Platforms',
-      description: 'MLH & Devpost',
+      title: '5 Platforms',
+      description: 'MLH & Devpost & more ...',
     },
     {
       icon: <Calendar className="h-6 w-6 text-accent" />,

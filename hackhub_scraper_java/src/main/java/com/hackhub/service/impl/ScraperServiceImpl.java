@@ -1,11 +1,9 @@
 package com.hackhub.service.impl;
 
 import com.hackhub.model.Event;
+import com.hackhub.model.EventType;
 import com.hackhub.service.ScraperService;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+
 import org.springframework.stereotype.Service;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -228,14 +226,14 @@ public class ScraperServiceImpl implements ScraperService {
                     // Create event object with extracted data
                     Event event = new Event();
                     // Generate unique ID from title and URL hash
-                    event.setId((long) (title + url).hashCode() & 0x7FFFFFFF);
+                    // event.setId() removed - JPA auto-generates ID
                     event.setTitle(title);
-                    event.setUrl(url);
+                    event.setSourceUrl(url);
                     event.setLocation(eventLoc);
-                    event.setDate(eventDate);
+                    // event.setParsedDate(eventDate); // TODO: parse string to LocalDate
                     event.setImageUrl(imageUrl);
                     event.setProvider("MLH");
-                    event.setType("HACKATHON");
+                    event.setType(EventType.HACKATHON);
 
                     basicEvents.add(event);
                     System.out.println("[MLH] Extracted: " + title);
@@ -253,7 +251,7 @@ public class ScraperServiceImpl implements ScraperService {
                     break;
 
                 // Skip deep scraping for now to avoid timeouts
-                // System.out.println("Deep scraping: " + event.getUrl());
+                // System.out.println("Deep scraping: " + event.getSourceUrl());
                 // fetchExternalDetails(event, driver);
                 events.add(event);
             }
@@ -269,80 +267,14 @@ public class ScraperServiceImpl implements ScraperService {
     /**
      * Tiered Extraction Strategy for external sites.
      */
-    private void fetchExternalDetails(Event event, WebDriver driver) {
-        if (event.getUrl() == null || event.getUrl().isBlank())
-            return;
-
-        try {
-            System.out.println("   [Deep Scrape] Visiting: " + event.getUrl());
-            driver.get(event.getUrl());
-            Thread.sleep(3000); // Wait for external site to load (handling SPAs)
-
-            String pageSource = driver.getPageSource();
-            Document doc = Jsoup.parse(pageSource);
-
-            // --- Tier 1: Structured Metadata ---
-            String metaDesc = getMetaContent(doc, "og:description", "description", "twitter:description");
-            if (metaDesc != null) {
-                event.setBlurb(metaDesc); // Use reliable metadata as 'blurb'
-            }
-
-            // --- Tier 2: Semantic Sections (Heuristic) ---
-            // Try to find common containers for "About" or "Description"
-            String description = null;
-            Elements contentCandidates = doc
-                    .select("main, article, #about, #description, .about-section, .description-section, .post-content");
-
-            if (!contentCandidates.isEmpty()) {
-                // Pick the largest text block from candidates
-                for (Element el : contentCandidates) {
-                    if (el.text().length() > 200) {
-                        description = el.html(); // Keep HTML structure
-                        break;
-                    }
-                }
-            }
-
-            // --- Tier 3: Body Fallback (If Tier 2 failed) ---
-            if (description == null) {
-                Element body = doc.body();
-                if (body != null) {
-                    // limit to first 2000 chars roughly to avoid massive generic footers
-                    String text = body.html();
-                    // Basic heuristic: find first significant block
-                    description = text.length() > 3000 ? text.substring(0, 3000) + "..." : text;
-                }
-            }
-
-            if (description != null) {
-                event.setDescription(description);
-                System.out.println("   [Deep Scrape] Found description (length: " + description.length() + ")");
-            } else {
-                System.out.println("   [Deep Scrape] ⚠️ No description found for " + event.getTitle());
-            }
-
-        } catch (Exception e) {
-            System.err.println("Failed to deep scrape " + event.getUrl() + ": " + e.getMessage());
-        }
-    }
-
-    private String getMetaContent(Document doc, String... attributes) {
-        for (String attr : attributes) {
-            Element meta = doc.selectFirst("meta[property=" + attr + "], meta[name=" + attr + "]");
-            if (meta != null && meta.hasAttr("content")) {
-                return meta.attr("content").trim();
-            }
-        }
-        return null;
-    }
 
     private void fetchDevpostDetails(Event event, WebDriver driver) {
-        if (event.getUrl() == null)
+        if (event.getSourceUrl() == null)
             return;
 
         try {
-            System.out.println("   [Devpost Deep Scrape] Visiting: " + event.getUrl());
-            driver.get(event.getUrl());
+            System.out.println("   [Devpost Deep Scrape] Visiting: " + event.getSourceUrl());
+            driver.get(event.getSourceUrl());
             Thread.sleep(2000);
 
             try {
@@ -407,7 +339,7 @@ public class ScraperServiceImpl implements ScraperService {
             retries = 0;
             while (retries < 3) {
                 try {
-                    event.setUrl(tile.findElement(By.cssSelector("a")).getAttribute("href"));
+                    event.setSourceUrl(tile.findElement(By.cssSelector("a")).getAttribute("href"));
                     break;
                 } catch (Exception e) {
                     if (e instanceof StaleElementReferenceException || e.getMessage().contains("stale element")) {
@@ -429,7 +361,9 @@ public class ScraperServiceImpl implements ScraperService {
 
             // Extract date
             try {
-                event.setDate(tile.findElement(By.cssSelector(".date, .challenge-date, time")).getText().trim());
+                // event.setParsedDate() removed - expects LocalDate not String
+                // event.setParsedDate(tile.findElement(By.cssSelector(".date, .challenge-date,
+                // time")).getText().trim());
             } catch (Exception e) {
                 // Date is optional
             }
@@ -447,12 +381,12 @@ public class ScraperServiceImpl implements ScraperService {
 
             // Deep scrape logic moved to fetchDevpostDetails to avoid
             // StaleElementReferenceException
-            // if (event.getUrl() != null) { ... }
+            // if (event.getSourceUrl() != null) { ... }
 
             // Generate unique ID from title and URL hash
-            event.setId((long) (event.getTitle() + event.getUrl()).hashCode() & 0x7FFFFFFF);
+            // event.setId() removed - JPA auto-generates ID
             event.setProvider("DEVPOST");
-            event.setType("HACKATHON");
+            event.setType(EventType.HACKATHON);
             return event;
         } catch (Exception e) {
             System.err.println("❌ [DEVPOST] Failed to parse event tile: " + e.getMessage());
@@ -521,8 +455,21 @@ public class ScraperServiceImpl implements ScraperService {
 
         try {
             System.out.println("🔍 [MLH SCRAPER STREAM] Starting");
-            driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(60));
-            driver.get(MLH_URL);
+
+            // Increase timeout and add retry logic
+            try {
+                driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(120));
+                driver.get(MLH_URL);
+                System.out.println("✅ [MLH] Page loaded successfully");
+            } catch (TimeoutException e) {
+                System.out.println("⚠️ [MLH] Page load timed out, retrying...");
+                driver.quit();
+                driver = createDriver();
+                driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(120));
+                driver.get(MLH_URL);
+                System.out.println("✅ [MLH] Page loaded on retry");
+            }
+
             Thread.sleep(3000);
 
             List<WebElement> cards = driver.findElements(By.cssSelector(".event-wrapper"));
@@ -543,13 +490,14 @@ public class ScraperServiceImpl implements ScraperService {
                     // Extract other fields
                     Event event = new Event();
                     event.setTitle(title);
-                    event.setUrl(card.findElement(By.cssSelector("a.event-link")).getAttribute("href"));
+                    event.setSourceUrl(card.findElement(By.cssSelector("a.event-link")).getAttribute("href"));
                     try {
                         event.setLocation(card.findElement(By.cssSelector(".event-location")).getText().trim());
                     } catch (Exception e) {
                     }
                     try {
-                        event.setDate(card.findElement(By.cssSelector(".event-date")).getText().trim());
+                        // event.setParsedDate() removed - expects LocalDate not String
+                        // event.setParsedDate(card.findElement(By.cssSelector(".event-date")).getText().trim());
                     } catch (Exception e) {
                     }
                     try {
@@ -557,9 +505,9 @@ public class ScraperServiceImpl implements ScraperService {
                     } catch (Exception e) {
                     }
 
-                    event.setId((long) (title + event.getUrl()).hashCode() & 0x7FFFFFFF);
+                    // event.setId() removed - JPA auto-generates ID
                     event.setProvider("MLH");
-                    event.setType("HACKATHON");
+                    event.setType(EventType.HACKATHON);
 
                     // Filter Location
                     if (location != null && !location.isBlank()) {

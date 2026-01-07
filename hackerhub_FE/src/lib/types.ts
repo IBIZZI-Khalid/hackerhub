@@ -6,7 +6,15 @@ export interface ScrapeRequest {
 }
 
 export interface SearchFormValues extends ScrapeRequest {
-  scrapeType: 'hackathons' | 'certificates';
+  scrapeType: 'hackathons' | 'certificates' | 'courses';
+  provider?: string;
+}
+
+export interface UserProfile {
+  id: number;
+  interests: string[];
+  preferredEventTypes: string[];
+  preferredProviders: string[];
 }
 
 export interface Event {
@@ -16,12 +24,17 @@ export interface Event {
   blurb: string;
   url: string;
   location: string;
-  date: string;
+  date: string; // Legacy property, kept for backward compatibility
+  eventDate?: string; // Backend sends this (LocalDate from Java)
   imageUrl: string;
-  provider: "MLH" | "DEVPOST" | "Coursera" | "Udemy";
+  provider: string; // "MLH", "DEVPOST", "Oracle", "IBM", "Microsoft", etc.
   requirements: string | null;
   judges: string | null;
   judgingCriteria: string | null;
-  type: "HACKATHON" | "CERTIFICATE";
+  type: "HACKATHON" | "CERTIFICATION" | "COURSE";
   scrappedAt: string;
+  category?: string;
+  examCode?: string;
+  level?: string;
+  price?: number;
 }
