@@ -7,9 +7,9 @@ A full-stack web application for discovering hackathons and tech certifications 
 | Name | Role | GitHub |
 |------|------|--------|
 | IBIZZI-Khalid | Developer | [@IBIZZI-Khalid](https://github.com/IBIZZI-Khalid) |
-| TEAMMATE_NAME_HERE | Developer | [@TEAMMATE_USERNAME](https://github.com/TEAMMATE_USERNAME) |
+| Hanae OUKACHA | Developer | [@HanaeOukacha1](https://github.com/HanaeOukacha1) |
 
-**Repository**: [github.com/IBIZZI-Khalid/hackhub-scraper](https://github.com/IBIZZI-Khalid/hackhub-scraper)
+**Repository**: [github.com/IBIZZI-Khalid/hackerhub-monorepo](https://github.com/IBIZZI-Khalid/hackerhub-monorepo)
 
 ---
 
